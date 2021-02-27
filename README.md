@@ -9,8 +9,9 @@ It is able to concurrently access multiple devices, retreive their running confi
 
 Overview
 =========
-Isrbackup is a Python script for accessing Cisco IOS devices that support netconf:base:1.0
-It employs the ncclient and netmiko libraries
+Isrbackup is a Python script for accessing Cisco IOS devices.
+The devices must support netconf:base:1.0 and ssh access.
+This script employs the python ncclient and netmiko libraries
 
 -Uses netmiko to configure netconf if required
 https://pypi.org/project/netmiko/
