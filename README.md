@@ -24,7 +24,7 @@ How to use
 
 Text file: You will need a text file listing the Ip address and hostname, seperated by space.
 Text file format will be one ip address hostname pair per line e.g "10.10.10.10 hostname".
-See sample file "yourfile.txt". File should be placed in same directory as isrbackup.py script.
+See sample file "samplefile.txt". File should be placed in same directory as isrbackup.py script.
 
 This script will prompt user for the following:
 
