@@ -28,19 +28,19 @@ See sample file "samplefile.txt". File should be placed in same directory as isr
 
 This script will prompt user for the following:
 
-- username and password:  >> this single username and password must have enable priviliges on all devices on your text file
+- username and password:  this single username and password must have enable priviliges on all devices on your text file
 
-- netconf port:  >>  you can set port that you want to use or that you have already configured for netconf, default is 22
+- netconf port: you can set port that you want to use or that you have already configured for netconf, default is 22
 
-- filename: >> name of your text file to use as input
+- filename: name of your text file to use as input
 
-- "Will you need to enable netconf?"  >> enter 'yes' script will configure netconf of the devices or 'no' if you have netconf already configured on devices
-
-
+- "Will you need to enable netconf?":  enter 'yes' script will configure netconf of the devices or 'no' if you have netconf already configured on devices
 
 
 
----------- :) 
+
+
+
 If you're asking why netconf ? -- No particular reason other than that I was learning the two packages for automating Cisco devices,
 I am aware this can be done using netmiko alone. This script was a base for future scripts that may involve either package.
 
