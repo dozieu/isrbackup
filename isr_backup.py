@@ -5,30 +5,52 @@ from pathlib import Path
 from netmiko import ConnectHandler
 import concurrent.futures
 import pyinputplus as pyip
+import sys
+import argparse
 
 ''' isrbackup allows user to backup running configuration of multiple Cisco devices without having to log into them individually.
  It is able to concurrently access multiple devices, retreive their running config and save to an "isr_backups" folder.'''
 
-print()
-print('#' * 42)
-print(('#' * 3) + '  --    Running ISR BACKUP     ---  ' + ('#' * 3))
-print(('#' * 42) + '\n')
+
+def get_args():
+    """get command-line arguments"""
+
+    parser = argparse.ArgumentParser(
+        description='Pings IP addresses entered or from file',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+    
+    parser.add_argument('-f',
+                        '--file',
+                        help='Input file - listing device name and ip address pairs',
+                        metavar='str',
+                        type=str
+                        )
+
+    parser.add_argument('-p',
+                        '--port',    
+                        help='netconf port number',
+                        metavar='str',
+                        type=str)
+
+    return parser.parse_args()
 
 
 def From_file_to_list(filename):
-    try:
+    mylist = []
+    try:        
         # Parses text file to a list of the lines
         with open(filename, 'r') as ftext:
             flist = ftext.readlines()
             mylist = [i[:-1] for i in flist]
         print('Loaded File to List.')
     except Exception as err:
-        print(err)
+        print('file error: ' + err)
     return mylist
 
 
 class Device:
-    # Playing with class methods as alternative constructor
+    # class methods as alternative constructor
     # using to create Device object
     def __init__(self, ip, hostname):
         self.ip = ip
@@ -63,6 +85,7 @@ def create_file(name_offile, content):
     with open(file_location, 'w') as f:
         # converting to string before writing by attributes .xml or .data_xml
         f.write(content.xml)
+        print(name_offile + ' done')
 
 
 def nccconnect(host_rtr, user, pw, nport=22):
@@ -92,7 +115,7 @@ def netconf_backup(dev_obj, user, pw, nport=22):
         create_file(hsname, ios_conf)
         
     except Exception as exc:
-        print(f'There was a problem: {dev_obj.ip}: {exc}')
+        print(f'Error: {dev_obj.ip}: unable to create file')
     return
 
 
@@ -124,45 +147,70 @@ def concurrent_commands(fxn, obj_lst, cmd, param, count):
 
 # ----------------------------------------------------------------------
 
+if __name__ == '__main__':
 
-user = input('username: ')
-pw = getpass.getpass()
-netconf_port = input('Enter netconf port number: ')
-routerfile = input('Enter filename: ')
+    args = get_args()
 
-if netconf_port == '':
-    netconf_port = 22
-# connection parameters for netmiko
-dev_param = {'device_type': 'cisco_ios',
-             'host': '',
-             'username': user,
-             'password': pw,
-             'timeout': 15,
-             'global_delay_factor': 0.5
-             }
+    print()
+    print('#' * 42)
+    print(('#' * 3) + '  --    Running ISR BACKUP     ---  ' + ('#' * 3))
+    print(('#' * 42) + '\n')
 
 
-# list of ios commands to send to devices
-commands_netconf = ['netconf ssh', 'do wr']
-try:
-    rtr_list = From_file_to_list(routerfile)
-    create_folder()
-    rtr_obj_list = Create_obj_lst(rtr_list)
+    user = input('username: ')
+    pw = getpass.getpass()
+    
 
-    ask_netconf = pyip.inputYesNo(
-        'Will you need to enable netconf ? [Y or N]: ')
-    if ask_netconf == 'yes':
-        print('Enabling netconf..')
-        concurrent_commands(provision_dev, rtr_obj_list,
-                            commands_netconf, dev_param, 50)
+    if args.port:
+        netconf_port = args.port
     else:
-        print('netconf already enabled on routers' + '\n')
+        netconf_port = input('Enter netconf port number: ')
 
-    print('Intitiating backup..')
-    concurrent_backup(netconf_backup, rtr_obj_list, user, pw, netconf_port, 50)
-except Exception as exc:
-    print('There was a problem: %s' % (exc))
+    if args.file:
+        routerfile = args.file
+    else:
+        routerfile = input('Enter filename: ')
 
 
-print('Done.')
-end = input('Hit Enter to close: ')
+    if netconf_port == '':
+        netconf_port = 22
+    # connection parameters for netmiko
+    dev_param = {'device_type': 'cisco_ios',
+                'host': '',
+                'username': user,
+                'password': pw,
+                'timeout': 15,
+                'global_delay_factor': 0.5
+                }
+
+
+    # list of ios commands to send to devices
+    commands_netconf = ['netconf ssh', 'do wr']
+    try:
+        rtr_list = From_file_to_list(routerfile)
+        create_folder()
+        rtr_obj_list = Create_obj_lst(rtr_list)
+
+        ask_netconf = pyip.inputYesNo(
+            'Will you need to enable netconf ? [Y or N]: ')
+        if ask_netconf == 'yes':
+            print('Enabling netconf..')
+            concurrent_commands(provision_dev, rtr_obj_list,
+                                commands_netconf, dev_param, 50)
+        else:
+            print('netconf already enabled on routers' + '\n')
+
+        print('Intitiating backup..')
+        concurrent_backup(netconf_backup, rtr_obj_list, user, pw, netconf_port, 50)
+    
+    except ValueError: 
+        print('file err: file should not end with empty line or space')
+    
+
+    except Exception as exc:
+        print('There was a problem: %s' % (exc))
+
+    
+
+    print('\nDone.')
+    end = input('Hit Enter to close: ')
