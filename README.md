@@ -25,6 +25,18 @@ How to use
 Text file: You will need a text file listing the Ip address and hostname, seperated by space.
 Text file format will be one ip address hostname pair per line e.g "10.10.10.10 hostname".
 See sample file "samplefile.txt". File should be placed in same directory as isrbackup.py script.
+script can be run with CLI arguments, esle srcipt will default to CLI prompts to guide user.
+
+    usage: pub_isr_backup.py [-h] [-f str] [-p str]
+
+    Pings IP addresses entered or from file
+
+    optional arguments:
+      -h, --help          show this help message and exit
+      -f str, --file str  Input file - listing device name and ip address pairs
+                          (default: None)
+      -p str, --port str  netconf port number (default: None)
+
 
 This script will prompt user for the following:
 
