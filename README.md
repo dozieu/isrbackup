@@ -1,5 +1,5 @@
 # isrbackup
-Concurrently access and backup Cisco router configuration files
+Concurrently backup Cisco router configuration files
 
 Name: isrbackup
 ================
